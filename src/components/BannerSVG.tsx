@@ -20,7 +20,7 @@ export const BannerSVG = React.memo(forwardRef<SVGSVGElement, Props>(({ state, d
     rightH += 100 + 100;
     
     const chartHeight = 120 + (state.expenses.length * 48) + 40;
-    rightH += chartHeight;
+    leftH += chartHeight + 80;
 
     const maxContentHeight = Math.max(leftH, rightH);
     const availableSpace = 2200; 
@@ -177,6 +177,34 @@ export const BannerSVG = React.memo(forwardRef<SVGSVGElement, Props>(({ state, d
               <rect x="100" y="100" width="700" height="75" rx="37.5" fill="#ffffff" />
               <text x="450" y="154" textAnchor="middle" fill={colors.secondary} fontSize={derivedData.silpa > 999999999 ? 42 : 52} fontWeight="900" letterSpacing="2">{formatRupiah(derivedData.silpa)}</text>
             </g>
+
+            {/* VISUALISASI GRAFIK BAR */}
+            <g transform={`translate(0, 700)`}>
+              <rect x="0" y="0" width="900" height={layout.chartHeight} rx="25" fill="#ffffff" filter="url(#shadowSm)" stroke={colors.tableBorder} strokeWidth="1" />
+              <path d="M0,25 Q0,0 25,0 L875,0 Q900,0 900,25 L900,70 L0,70 Z" fill={colors.bgLight} />
+              <text x="450" y="46" textAnchor="middle" fill={colors.textDark} fontSize="28" fontWeight="900">VISUALISASI PROPORSI ANGGARAN BELANJA</text>
+              
+              <g transform="translate(40, 110)">
+                 {(() => {
+                   const maxVal = Math.max(1, ...Object.values(derivedData.expenseTotals as Record<string, number>));
+                   const barMaxWidth = 380;
+
+                   return state.expenses.map((cat, i) => {
+                     const val = derivedData.expenseTotals[cat.id] || 0;
+                     const w = (val / maxVal) * barMaxWidth;
+                     return (
+                       <g key={`bar-${i}`} transform={`translate(0, ${i * 48})`}>
+                         <text x="0" y="24" fill={colors.textDark} fontSize="22" fontWeight="600" {...safeTextProps(cat.name, 28, "340")}>{cat.name}</text>
+                         <rect x="360" y="4" width={barMaxWidth} height="26" rx="13" fill={colors.bgLight} />
+                         <rect x="360" y="4" width={w} height="26" rx="13" fill={colors.primary} />
+                         <text x={360 + w + 15} y="24" fill={colors.primary} fontSize="22" fontWeight="800">{(val/1000000).toFixed(1).replace(/\.0$/, '')} Jt</text>
+                       </g>
+                     );
+                   });
+                 })()}
+              </g>
+              <text x="450" y={layout.chartHeight - 20} textAnchor="middle" fill={colors.textMuted} fontSize="20" fontStyle="italic">* Grafik dalam jutaan rupiah untuk memudahkan pembacaan</text>
+            </g>
           </g>
         </g>
 
@@ -231,41 +259,24 @@ export const BannerSVG = React.memo(forwardRef<SVGSVGElement, Props>(({ state, d
               <text x="860" y="52" textAnchor="end" fill={colors.primary} fontSize="40" fontWeight="900">{formatRupiah(derivedData.totalExpense)}</text>
             </g>
           </g>
-
-          {/* VISUALISASI GRAFIK BAR */}
-          <g transform={`translate(0, ${(() => {
-              let sy = 110;
-              state.expenses.forEach(cat => sy += 60 + (cat.items.length * 60) + 60 + 20);
-              return sy + 20 + 80 + 80;
-            })()})`}>
-            
-            <rect x="0" y="0" width="900" height={layout.chartHeight} rx="25" fill="#ffffff" filter="url(#shadowSm)" stroke={colors.tableBorder} strokeWidth="1" />
-            <path d="M0,25 Q0,0 25,0 L875,0 Q900,0 900,25 L900,70 L0,70 Z" fill={colors.bgLight} />
-            <text x="450" y="46" textAnchor="middle" fill={colors.textDark} fontSize="28" fontWeight="900">VISUALISASI PROPORSI ANGGARAN BELANJA</text>
-            
-            <g transform="translate(40, 110)">
-               {(() => {
-                 const maxVal = Math.max(1, ...Object.values(derivedData.expenseTotals as Record<string, number>));
-                 const barMaxWidth = 380;
-
-                 return state.expenses.map((cat, i) => {
-                   const val = derivedData.expenseTotals[cat.id] || 0;
-                   const w = (val / maxVal) * barMaxWidth;
-                   return (
-                     <g key={`bar-${i}`} transform={`translate(0, ${i * 48})`}>
-                       <text x="0" y="24" fill={colors.textDark} fontSize="22" fontWeight="600" {...safeTextProps(cat.name, 28, "340")}>{cat.name}</text>
-                       <rect x="360" y="4" width={barMaxWidth} height="26" rx="13" fill={colors.bgLight} />
-                       <rect x="360" y="4" width={w} height="26" rx="13" fill={colors.primary} />
-                       <text x={360 + w + 15} y="24" fill={colors.primary} fontSize="22" fontWeight="800">{(val/1000000).toFixed(1).replace(/\.0$/, '')} Jt</text>
-                     </g>
-                   );
-                 });
-               })()}
-            </g>
-            <text x="450" y={layout.chartHeight - 20} textAnchor="middle" fill={colors.textMuted} fontSize="20" fontStyle="italic">* Grafik dalam jutaan rupiah untuk memudahkan pembacaan</text>
-          </g>
-
         </g>
+      </g>
+
+      {/* BOTTOM CORNER FLOURISHES */}
+      <g opacity="0.8">
+        {/* Bottom Left */}
+        <path d="M 0 3000 L 0 2500 C 300 2500, 500 2800, 500 3000 Z" fill={colors.primary} fillOpacity="0.05" />
+        <path d="M 0 3000 L 0 2700 C 150 2700, 300 2850, 300 3000 Z" fill={colors.primary} fillOpacity="0.08" />
+        <circle cx="180" cy="2800" r="25" fill={colors.secondary} fillOpacity="0.4" />
+        <circle cx="280" cy="2900" r="15" fill={colors.secondary} fillOpacity="0.3" />
+        <circle cx="80" cy="2650" r="10" fill={colors.secondary} fillOpacity="0.5" />
+
+        {/* Bottom Right */}
+        <path d="M 2000 3000 L 2000 2500 C 1700 2500, 1500 2800, 1500 3000 Z" fill={colors.primary} fillOpacity="0.05" />
+        <path d="M 2000 3000 L 2000 2700 C 1850 2700, 1700 2850, 1700 3000 Z" fill={colors.primary} fillOpacity="0.08" />
+        <circle cx="1820" cy="2800" r="25" fill={colors.secondary} fillOpacity="0.4" />
+        <circle cx="1720" cy="2900" r="15" fill={colors.secondary} fillOpacity="0.3" />
+        <circle cx="1920" cy="2650" r="10" fill={colors.secondary} fillOpacity="0.5" />
       </g>
 
       {/* FOOTER SECTION */}
