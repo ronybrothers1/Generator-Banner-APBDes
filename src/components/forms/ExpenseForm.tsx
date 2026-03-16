@@ -38,7 +38,7 @@ export const ExpenseForm: React.FC<Props> = ({ expenses, setExpenses, expenseTot
               {category.items.map((item) => (
                 <div key={item.id} className="flex flex-col md:flex-row gap-2 md:items-center bg-white p-2 rounded-md border border-slate-200">
                    <div className="flex-1 w-full"><Input placeholder="Nama Kegiatan" value={item.name} onChange={(e) => updateExpense(category.id, item.id, 'name', e.target.value)} className="text-xs h-9" /></div>
-                   <div className="w-full md:w-1/3 flex gap-2">
+                   <div className="w-full md:w-[30%] flex gap-2">
                      <Input type="text" inputMode="numeric" placeholder="0" value={item.amount === 0 ? '' : formatNumberWithDots(item.amount)} onChange={(e) => updateExpense(category.id, item.id, 'amount', parseSafeNumber(e.target.value))} className="text-xs h-9 border-teal-200 focus:border-teal-500" />
                      <button onClick={() => removeExpense(category.id, item.id)} className="p-1.5 text-slate-400 hover:text-red-500 rounded bg-slate-50"><Trash2 size={16} /></button>
                    </div>

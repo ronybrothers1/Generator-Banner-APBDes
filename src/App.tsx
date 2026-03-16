@@ -269,6 +269,12 @@ export default function App() {
         </div>
 
       </main>
+
+      <footer className="bg-white border-t border-slate-200 py-4 mt-auto print-hidden">
+        <div className="max-w-screen-2xl mx-auto px-4 text-center text-sm text-slate-500">
+          Dikembangkan oleh Imam Sahroni Darmawan
+        </div>
+      </footer>
     </div>
   );
 }

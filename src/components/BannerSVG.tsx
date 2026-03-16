@@ -20,7 +20,8 @@ export const BannerSVG = React.memo(forwardRef<SVGSVGElement, Props>(({ state, d
     rightH += 100 + 100;
     
     const chartHeight = 120 + (state.expenses.length * 48) + 40;
-    leftH += chartHeight + 80;
+    const pieHeight = 360;
+    leftH += chartHeight + 40 + pieHeight + 80;
 
     const maxContentHeight = Math.max(leftH, rightH);
     const availableSpace = 2200; 
@@ -204,6 +205,63 @@ export const BannerSVG = React.memo(forwardRef<SVGSVGElement, Props>(({ state, d
                  })()}
               </g>
               <text x="450" y={layout.chartHeight - 20} textAnchor="middle" fill={colors.textMuted} fontSize="20" fontStyle="italic">* Grafik dalam jutaan rupiah untuk memudahkan pembacaan</text>
+            </g>
+
+            {/* RINGKASAN POSTUR APBDES (PIE CHART) */}
+            <g transform={`translate(0, ${700 + layout.chartHeight + 40})`}>
+              <rect x="0" y="0" width="900" height="360" rx="25" fill="#ffffff" filter="url(#shadowSm)" stroke={colors.tableBorder} strokeWidth="1" />
+              <path d="M0,25 Q0,0 25,0 L875,0 Q900,0 900,25 L900,70 L0,70 Z" fill={colors.bgLight} />
+              <text x="450" y="46" textAnchor="middle" fill={colors.textDark} fontSize="28" fontWeight="900">RINGKASAN POSTUR APBDES</text>
+              
+              {(() => {
+                const totalIncome = derivedData.totalIncome;
+                const totalExpense = derivedData.totalExpense;
+                const totalFinancing = Math.abs(derivedData.netFinancing);
+                const total = totalIncome + totalExpense + totalFinancing;
+                
+                if (total === 0) return null;
+                
+                const pctIncome = totalIncome / total;
+                const pctExpense = totalExpense / total;
+                const pctFinancing = totalFinancing / total;
+                
+                const r = 75;
+                const c = 2 * Math.PI * r;
+                
+                const incomeDash = pctIncome * c;
+                const expenseDash = pctExpense * c;
+                const financingDash = pctFinancing * c;
+                
+                const incomeOffset = 0;
+                const expenseOffset = -incomeDash;
+                const financingOffset = -(incomeDash + expenseDash);
+                
+                return (
+                  <g transform="translate(0, 70)">
+                    <g transform="translate(250, 140) rotate(-90)">
+                      <circle r={r} fill="transparent" stroke={colors.primary} strokeWidth={r*2} strokeDasharray={`${incomeDash} ${c}`} strokeDashoffset={incomeOffset} />
+                      <circle r={r} fill="transparent" stroke="#ef4444" strokeWidth={r*2} strokeDasharray={`${expenseDash} ${c}`} strokeDashoffset={expenseOffset} />
+                      <circle r={r} fill="transparent" stroke={colors.secondary} strokeWidth={r*2} strokeDasharray={`${financingDash} ${c}`} strokeDashoffset={financingOffset} />
+                      <circle r={r*2} fill="transparent" stroke="#ffffff" strokeWidth="4" />
+                    </g>
+                    
+                    {/* Legend */}
+                    <g transform="translate(500, 50)">
+                      <rect x="0" y="0" width="24" height="24" rx="6" fill={colors.primary} />
+                      <text x="40" y="18" fill={colors.textDark} fontSize="22" fontWeight="700">Pendapatan</text>
+                      <text x="40" y="45" fill={colors.textMuted} fontSize="20">{(pctIncome * 100).toFixed(1)}% ({formatRupiah(totalIncome)})</text>
+                      
+                      <rect x="0" y="70" width="24" height="24" rx="6" fill="#ef4444" />
+                      <text x="40" y="88" fill={colors.textDark} fontSize="22" fontWeight="700">Belanja</text>
+                      <text x="40" y="115" fill={colors.textMuted} fontSize="20">{(pctExpense * 100).toFixed(1)}% ({formatRupiah(totalExpense)})</text>
+                      
+                      <rect x="0" y="140" width="24" height="24" rx="6" fill={colors.secondary} />
+                      <text x="40" y="158" fill={colors.textDark} fontSize="22" fontWeight="700">Pembiayaan</text>
+                      <text x="40" y="185" fill={colors.textMuted} fontSize="20">{(pctFinancing * 100).toFixed(1)}% ({formatRupiah(totalFinancing)})</text>
+                    </g>
+                  </g>
+                );
+              })()}
             </g>
           </g>
         </g>
