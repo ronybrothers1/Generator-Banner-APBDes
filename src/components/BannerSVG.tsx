@@ -9,25 +9,25 @@ interface Props {
 
 export const BannerSVG = React.memo(forwardRef<SVGSVGElement, Props>(({ state, derivedData }, ref) => {
   const layout = useMemo(() => {
-    let leftH = 0;
-    leftH += 80 + 60 + (state.incomes.length * 60) + 80 + 100; 
-    leftH += 80 + 60 + 60 + 60 + 80 + 100 + 200;
-
-    let rightH = 80;
-    state.expenses.forEach(cat => {
-      rightH += 60 + (cat.items.length * 60) + 50 + 40; 
-    });
-    rightH += 100 + 100;
-    
     const chartHeight = 120 + (state.expenses.length * 48) + 40;
-    const pieHeight = 360;
-    leftH += chartHeight + 40 + pieHeight + 80;
+    const pieHeight = 420;
+    
+    let leftH = 370 + (state.incomes.length * 60);
+    leftH += 535;
+    leftH += chartHeight + 40;
+    leftH += pieHeight + 80;
 
+    let rightH = 110;
+    state.expenses.forEach(cat => {
+      rightH += 60 + (cat.items.length * 60) + 60 + 20; 
+    });
+    rightH += 20 + 80 + 80;
+    
     const maxContentHeight = Math.max(leftH, rightH);
     const availableSpace = 2200; 
     const scale = maxContentHeight > availableSpace ? availableSpace / maxContentHeight : 1;
 
-    return { scale, chartHeight };
+    return { scale, chartHeight, pieHeight };
   }, [state.incomes.length, state.expenses, state.financing]);
 
   const { themeColor } = state.settings;
@@ -171,16 +171,14 @@ export const BannerSVG = React.memo(forwardRef<SVGSVGElement, Props>(({ state, d
             </g>
 
             {/* SILPA */}
-            <g transform={`translate(0, 440)`}>
-              <rect x="0" y="0" width="900" height="200" rx="35" fill={colors.secondary} filter="url(#shadowLg)" />
-              <path d="M0,0 L200,200 L0,200 Z" fill="#ffffff" fillOpacity="0.1" clipPath="url(#silpaClip)" />
-              <text x="450" y="70" textAnchor="middle" fill="#ffffff" fontSize="36" fontWeight="900" letterSpacing="1">SISA LEBIH PEMBIAYAAN ANGGARAN (SILPA)</text>
-              <rect x="100" y="100" width="700" height="75" rx="37.5" fill="#ffffff" />
-              <text x="450" y="154" textAnchor="middle" fill={colors.secondary} fontSize={derivedData.silpa > 999999999 ? 42 : 52} fontWeight="900" letterSpacing="2">{formatRupiah(derivedData.silpa)}</text>
+            <g transform={`translate(0, 415)`}>
+              <rect x="0" y="0" width="900" height="80" rx="15" fill={colors.primary} fillOpacity="0.08" />
+              <text x="30" y="52" fill={colors.primary} fontSize="34" fontWeight="900">SILPA</text>
+              <text x="860" y="52" textAnchor="end" fill={colors.primary} fontSize="40" fontWeight="900">{formatRupiah(derivedData.silpa)}</text>
             </g>
 
             {/* VISUALISASI GRAFIK BAR */}
-            <g transform={`translate(0, 700)`}>
+            <g transform={`translate(0, 535)`}>
               <rect x="0" y="0" width="900" height={layout.chartHeight} rx="25" fill="#ffffff" filter="url(#shadowSm)" stroke={colors.tableBorder} strokeWidth="1" />
               <path d="M0,25 Q0,0 25,0 L875,0 Q900,0 900,25 L900,70 L0,70 Z" fill={colors.bgLight} />
               <text x="450" y="46" textAnchor="middle" fill={colors.textDark} fontSize="28" fontWeight="900">VISUALISASI PROPORSI ANGGARAN BELANJA</text>
@@ -208,8 +206,8 @@ export const BannerSVG = React.memo(forwardRef<SVGSVGElement, Props>(({ state, d
             </g>
 
             {/* RINGKASAN POSTUR APBDES (PIE CHART) */}
-            <g transform={`translate(0, ${700 + layout.chartHeight + 40})`}>
-              <rect x="0" y="0" width="900" height="360" rx="25" fill="#ffffff" filter="url(#shadowSm)" stroke={colors.tableBorder} strokeWidth="1" />
+            <g transform={`translate(0, ${535 + layout.chartHeight + 40})`}>
+              <rect x="0" y="0" width="900" height={layout.pieHeight} rx="25" fill="#ffffff" filter="url(#shadowSm)" stroke={colors.tableBorder} strokeWidth="1" />
               <path d="M0,25 Q0,0 25,0 L875,0 Q900,0 900,25 L900,70 L0,70 Z" fill={colors.bgLight} />
               <text x="450" y="46" textAnchor="middle" fill={colors.textDark} fontSize="28" fontWeight="900">RINGKASAN POSTUR APBDES</text>
               
@@ -225,7 +223,7 @@ export const BannerSVG = React.memo(forwardRef<SVGSVGElement, Props>(({ state, d
                 const pctExpense = totalExpense / total;
                 const pctFinancing = totalFinancing / total;
                 
-                const r = 75;
+                const r = 85;
                 const c = 2 * Math.PI * r;
                 
                 const incomeDash = pctIncome * c;
@@ -238,7 +236,7 @@ export const BannerSVG = React.memo(forwardRef<SVGSVGElement, Props>(({ state, d
                 
                 return (
                   <g transform="translate(0, 70)">
-                    <g transform="translate(250, 140) rotate(-90)">
+                    <g transform="translate(260, 170) rotate(-90)">
                       <circle r={r} fill="transparent" stroke={colors.primary} strokeWidth={r*2} strokeDasharray={`${incomeDash} ${c}`} strokeDashoffset={incomeOffset} />
                       <circle r={r} fill="transparent" stroke="#ef4444" strokeWidth={r*2} strokeDasharray={`${expenseDash} ${c}`} strokeDashoffset={expenseOffset} />
                       <circle r={r} fill="transparent" stroke={colors.secondary} strokeWidth={r*2} strokeDasharray={`${financingDash} ${c}`} strokeDashoffset={financingOffset} />
@@ -246,18 +244,18 @@ export const BannerSVG = React.memo(forwardRef<SVGSVGElement, Props>(({ state, d
                     </g>
                     
                     {/* Legend */}
-                    <g transform="translate(500, 50)">
+                    <g transform="translate(500, 65)">
                       <rect x="0" y="0" width="24" height="24" rx="6" fill={colors.primary} />
-                      <text x="40" y="18" fill={colors.textDark} fontSize="22" fontWeight="700">Pendapatan</text>
-                      <text x="40" y="45" fill={colors.textMuted} fontSize="20">{(pctIncome * 100).toFixed(1)}% ({formatRupiah(totalIncome)})</text>
+                      <text x="38" y="18" fill={colors.textDark} fontSize="22" fontWeight="700">Pendapatan</text>
+                      <text x="38" y="45" fill={colors.textMuted} fontSize="20">{(pctIncome * 100).toFixed(1)}% ({formatRupiah(totalIncome)})</text>
                       
-                      <rect x="0" y="70" width="24" height="24" rx="6" fill="#ef4444" />
-                      <text x="40" y="88" fill={colors.textDark} fontSize="22" fontWeight="700">Belanja</text>
-                      <text x="40" y="115" fill={colors.textMuted} fontSize="20">{(pctExpense * 100).toFixed(1)}% ({formatRupiah(totalExpense)})</text>
+                      <rect x="0" y="75" width="24" height="24" rx="6" fill="#ef4444" />
+                      <text x="38" y="93" fill={colors.textDark} fontSize="22" fontWeight="700">Belanja</text>
+                      <text x="38" y="120" fill={colors.textMuted} fontSize="20">{(pctExpense * 100).toFixed(1)}% ({formatRupiah(totalExpense)})</text>
                       
-                      <rect x="0" y="140" width="24" height="24" rx="6" fill={colors.secondary} />
-                      <text x="40" y="158" fill={colors.textDark} fontSize="22" fontWeight="700">Pembiayaan</text>
-                      <text x="40" y="185" fill={colors.textMuted} fontSize="20">{(pctFinancing * 100).toFixed(1)}% ({formatRupiah(totalFinancing)})</text>
+                      <rect x="0" y="150" width="24" height="24" rx="6" fill={colors.secondary} />
+                      <text x="38" y="168" fill={colors.textDark} fontSize="22" fontWeight="700">Pembiayaan</text>
+                      <text x="38" y="195" fill={colors.textMuted} fontSize="20">{(pctFinancing * 100).toFixed(1)}% ({formatRupiah(totalFinancing)})</text>
                     </g>
                   </g>
                 );
